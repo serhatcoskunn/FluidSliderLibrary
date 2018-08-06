@@ -18,7 +18,7 @@
 
     <com.ahe.fluidsliderlibrary.FluidSliderLib.FluidSlider
         android:id="@+id/fluidSlider"
-        android:layout_width="200dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="16dp"
@@ -32,6 +32,18 @@
         app:layout_constraintVertical_bias="0.498"
         app:size="small"
         tools:targetApi="lollipop" />
+
+    <ImageView
+        android:id="@+id/imageView_plus"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.556"
+        app:srcCompat="@drawable/ic_add_black_24dp" />
 
 
 </android.support.constraint.ConstraintLayout>

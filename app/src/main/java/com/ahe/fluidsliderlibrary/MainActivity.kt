@@ -16,6 +16,7 @@ import android.view.animation.*
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         val total = max - min
 
         val slider = findViewById<FluidSlider>(R.id.fluidSlider)
+
+        var plusSize=imageView_plus.layoutParams.width
 
 
         //slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).toInt()}" }
@@ -93,7 +96,17 @@ class MainActivity : AppCompatActivity() {
                 scal.duration = 1000
                 scal.fillAfter = true
                 slider.animation = scal*/
-                val anim = ValueAnimator.ofInt(slider.measuredWidth, 800)
+                /*val anim = ValueAnimator.ofInt(slider.measuredWidth, 800)
+                anim.addUpdateListener { valueAnimator ->
+                    val `val` = valueAnimator.animatedValue as Int
+                    val layoutParams = slider.layoutParams
+                    layoutParams.width = `val`
+                    slider.layoutParams=layoutParams
+                }
+                anim.duration = 1000
+                anim.start()*/
+
+                val anim = ValueAnimator.ofInt(slider.measuredWidth, slider.measuredWidth-plusSize)
                 anim.addUpdateListener { valueAnimator ->
                     val `val` = valueAnimator.animatedValue as Int
                     val layoutParams = slider.layoutParams
@@ -116,6 +129,8 @@ class MainActivity : AppCompatActivity() {
                 //scal.duration = 1000
                 //scal.fillAfter = true
                 //slider.animation = scal
+
+
             }
             Toast.makeText(this@MainActivity,slider.width.toString(),Toast.LENGTH_SHORT).show()
         }
