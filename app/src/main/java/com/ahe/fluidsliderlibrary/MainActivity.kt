@@ -5,11 +5,13 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.ahe.fluidsliderlibrary.FluidSliderLib.FluidSlider
 import android.support.v4.view.ViewCompat.animate
+import android.transition.Slide
 import android.view.animation.*
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
@@ -36,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         val total = max - min
 
         val slider = findViewById<FluidSlider>(R.id.fluidSlider)
+
+
         //slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).toInt()}" }
         slider.positionListener = {
 
@@ -52,25 +56,68 @@ class MainActivity : AppCompatActivity() {
         slider.endText = "$max"
         slider.dayType=FluidSlider.DayType.Normal
 
+        Toast.makeText(this@MainActivity,slider.width.toString(),Toast.LENGTH_SHORT).show()
+
         slider.beginTrackingListener = { textView.visibility = View.INVISIBLE }
         slider.endTrackingListener = { textView.visibility = View.VISIBLE
 
+
+
             if(slider.dayType==FluidSlider.DayType.Overtime)
             {
-                //Toast.makeText(this@MainActivity,"Tıkandı",Toast.LENGTH_SHORT).show()
-                val scal = ScaleAnimation(1f, 1.1f, 1f, 1f, Animation.RELATIVE_TO_SELF, 0.5.toFloat(), Animation.RELATIVE_TO_SELF, 0.5.toFloat())
+
+                //val scal = ScaleAnimation(1f, 1.1f, 1f, 1f, Animation.RELATIVE_TO_SELF, 0.5.toFloat(), Animation.RELATIVE_TO_SELF, 0.5.toFloat())
+                /*val scal = ScaleAnimation(1f, 1.5f, 1f, 1f, Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f)
+                scal.setAnimationListener(object :Animation.AnimationListener{
+                    override fun onAnimationRepeat(p0: Animation?) {
+
+                    }
+
+                    override fun onAnimationEnd(p0: Animation?) {
+                        val params = slider.layoutParams as ConstraintLayout.LayoutParams
+                        //params.height = 520
+                        //params.width = 0
+                        params.layoutAnimationParameters
+                        slider.layoutParams=params
+                        slider.requestLayout()
+
+                    }
+
+                    override fun onAnimationStart(p0: Animation?) {
+
+                    }
+
+
+                })
+
                 scal.duration = 1000
                 scal.fillAfter = true
-                slider.animation = scal
+                slider.animation = scal*/
+                val anim = ValueAnimator.ofInt(slider.measuredWidth, 800)
+                anim.addUpdateListener { valueAnimator ->
+                    val `val` = valueAnimator.animatedValue as Int
+                    val layoutParams = slider.layoutParams
+                    layoutParams.width = `val`
+                    slider.layoutParams=layoutParams
+                }
+                anim.duration = 1000
+                anim.start()
+
+
+                //slider.invalidate()
+                //slider.offsetLeftAndRight(100)
+
             }
             else
             {
-                //Toast.makeText(this@MainActivity,"Tıkandı",Toast.LENGTH_SHORT).show()
-                val scal = ScaleAnimation(1.1f, 1f, 1f, 1f, Animation.RELATIVE_TO_SELF, 0.5.toFloat(), Animation.RELATIVE_TO_SELF, 0.5.toFloat())
-                scal.duration = 1000
-                scal.fillAfter = true
-                slider.animation = scal
+                //slider.layoutParams.width=10
+                //val scal = ScaleAnimation(1.1f, 1f, 1f, 1f, Animation.RELATIVE_TO_SELF, 0.5.toFloat(), Animation.RELATIVE_TO_SELF, 0.5.toFloat())
+                //val scal = ScaleAnimation(2f, 1f, 1f, 1f, Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f)
+                //scal.duration = 1000
+                //scal.fillAfter = true
+                //slider.animation = scal
             }
+            Toast.makeText(this@MainActivity,slider.width.toString(),Toast.LENGTH_SHORT).show()
         }
 
 
