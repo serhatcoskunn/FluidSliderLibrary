@@ -40,8 +40,25 @@ class MainActivity : AppCompatActivity() {
 
         val slider = findViewById<FluidSlider>(R.id.fluidSlider)
 
+
+
         var plusSize=imageView_plus.layoutParams.width
 
+
+        imageView_plus.setOnClickListener{
+            Toast.makeText(this@MainActivity,"Artı tıklandı",Toast.LENGTH_SHORT).show()
+
+            val anim = ValueAnimator.ofInt(slider.measuredWidth, slider.measuredWidth+plusSize)
+            anim.addUpdateListener { valueAnimator ->
+                val `val` = valueAnimator.animatedValue as Int
+                val layoutParams = slider.layoutParams
+                layoutParams.width = `val`
+                slider.layoutParams=layoutParams
+            }
+            anim.duration = 1000
+            anim.start()
+
+        }
 
         //slider.positionListener = { pos -> slider.bubbleText = "${min + (total  * pos).toInt()}" }
         slider.positionListener = {
@@ -54,7 +71,7 @@ class MainActivity : AppCompatActivity() {
 
 
         }
-        slider.position = 0.3f
+        slider.position = 0.0f
         slider.startText ="$min"
         slider.endText = "$max"
         slider.dayType=FluidSlider.DayType.Normal
