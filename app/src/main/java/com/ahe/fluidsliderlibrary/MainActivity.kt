@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     enum class SliderType
     {
         Normal,
-        Anormal
+        Overtime
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         var plusSize=imageView_plus.layoutParams.width
 
-        imageView_plus.setOnClickListener{
+        /*imageView_plus.setOnClickListener{
                 max=24.0
                 slider.endText = "$max"
                 slider.position=convertHourtoPos(8f)
@@ -107,12 +107,12 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-        }
+        }*/
     }
 
 
 
-    fun convertPostoHour(value: Float):String
+    /*fun convertPostoHour(value: Float):String
     {
         val value = (value * (6*max)).toInt()
         val hour=value/6
@@ -122,13 +122,13 @@ class MainActivity : AppCompatActivity() {
             minString = min.toString()
         }
         return "$hour:$minString"
-    }
-    fun convertHourtoPos(value: Float):Float
+    }*/
+    /*fun convertHourtoPos(value: Float):Float
     {
         var str=value.toString()
         var temp=str.split(".")
         return ((temp[0].toFloat()*6)+(temp[1].toFloat()))/((6*max).toInt())
-    }
+    }*/
 
     fun convertStringToHour(str: String):Float
     {

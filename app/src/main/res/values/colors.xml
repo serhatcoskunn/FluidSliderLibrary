@@ -3,4 +3,16 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="black">#000</color>
+
+
+    <color name="slider_bg">#d7e3ef</color>
+    <color name="slider_fg">#1969c5</color>
+    <color name="divider_bg">#c8c9cd</color>
+
+
+    <color name="test">#02687a</color>
+
+
 </resources>

@@ -7,11 +7,13 @@ import android.graphics.*
 import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.animation.OvershootInterpolator
+import android.widget.SeekBar
 import com.ahe.fluidsliderlibrary.R
 import kotlin.math.*
 
@@ -392,11 +394,39 @@ class FluidSlider @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+
         // Draw slider bar and text
         canvas.drawRoundRect(rectBar, barCornerRadius, barCornerRadius, paintBar)
 
         startText?.let { drawText(canvas, paintText, it, Paint.Align.LEFT, colorBarText, textOffset, rectBar, rectText) }
         endText?.let { drawText(canvas, paintText, it, Paint.Align.RIGHT, colorBarText, textOffset, rectBar, rectText) }
+
+
+
+        //test
+        var yatayTop=rectBar.left+rectBar.right
+        var dikeyTop=rectBar.top+rectBar.bottom
+        var cikinti=dikeyTop/20
+
+        var paint=Paint()
+
+
+        paint.color = ContextCompat.getColor(context,R.color.divider_bg)
+        paint.strokeWidth = yatayTop/100//1f
+
+
+
+        var seekBar:SeekBar
+        var ilkx=yatayTop/4
+        var ikix=yatayTop/2
+        var ücx=(yatayTop/4)*3
+
+        canvas.drawLine(ilkx,rectBar.top/*-cikinti*/,ilkx,rectBar.bottom,paint)
+        canvas.drawLine(ikix,rectBar.top,ikix,rectBar.bottom,paint)
+        canvas.drawLine(ücx,rectBar.top,ücx,rectBar.bottom,paint)
+        //test
+
+
 
         // Draw metaball
         val x = barInnerOffset + touchRectDiameter / 2 + maxMovement * position
