@@ -4,12 +4,9 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GestureDetectorCompat;
@@ -26,6 +23,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -54,7 +52,7 @@ import static android.view.MotionEvent.ACTION_UP;
 
 public class Slidr extends FrameLayout {
 
-    private static final float DISTANCE_TEXT_BAR = 10;
+    private static final float DISTANCE_TEXT_BAR = 15;
     private static final float BUBBLE_PADDING_HORIZONTAL = 15;
     private static final float BUBBLE_PADDING_VERTICAL = 10;
 
@@ -69,7 +67,8 @@ public class Slidr extends FrameLayout {
     private float min = 0;
     private float currentValue = 0;
     private float oldValue = Float.MIN_VALUE;
-    private List<Step> steps = new ArrayList<>();
+    List<Step> steps = new ArrayList<>();
+    List<PointText> pointTexts = new ArrayList<>();
     private float barY;
     private float barWidth;
     private float indicatorX;
@@ -390,10 +389,31 @@ public class Slidr extends FrameLayout {
         update();
     }
 
+    public void addPointText(List<PointText> pointTexts) {
+        this.pointTexts.addAll(pointTexts);
+        Collections.sort(pointTexts);
+        update();
+    }
+
+
+
     //endregion
 
     public void addStep(Step step) {
         this.steps.add(step);
+        Collections.sort(steps);
+        update();
+    }
+
+    public void addPointText(PointText pointText) {
+        this.pointTexts.add(pointText);
+        Collections.sort(pointTexts);
+        update();
+    }
+
+    public void deleteStep(Step step)
+    {
+        this.steps.remove(step);
         Collections.sort(steps);
         update();
     }
@@ -574,6 +594,11 @@ public class Slidr extends FrameLayout {
             step.xStart = stoppoverPercent * barWidth;
         }
 
+        for (PointText pointText : pointTexts) {
+            final float stoppoverPercent = pointText.value / (max - min);
+            pointText.xStart = stoppoverPercent * barWidth;
+        }
+
         indicatorX = (currentValue - min) / (max - min) * barWidth;
 
         calculatedHieght = (int) (barCenterY + indicatorRadius);
@@ -651,8 +676,8 @@ public class Slidr extends FrameLayout {
             } else {
                 final Step stepBeforeCustor = findStepOfCustor();
                 if (stepBeforeCustor != null) {
-                    settings.paintIndicator.setColor(stepBeforeCustor.colorBefore);
-                    settings.paintBubble.setColor(stepBeforeCustor.colorBefore);
+                    //settings.paintIndicator.setColor(stepBeforeCustor.colorBefore);
+                    //settings.paintBubble.setColor(stepBeforeCustor.colorBefore);
                 } else {
                     if (settings.step_colorizeAfterLast) {
                         final Step beforeCustor = findStepBeforeCustor();
@@ -698,7 +723,7 @@ public class Slidr extends FrameLayout {
                     float lastX = centerCircleLeft;
                     boolean first = true;
                     for (Step step : steps) {
-                        settings.paintBar.setColor(step.colorBefore);
+                        //settings.paintBar.setColor(step.colorBefore);
                         if (first) {
                             canvas.drawCircle(centerCircleLeft, barCenterY, radiusCorner, settings.paintBar);
                         }
@@ -714,18 +739,47 @@ public class Slidr extends FrameLayout {
                         first = false;
                     }
 
-
+                    Boolean isFirst=true;
                     if (settings.step_colorizeAfterLast) {
                         //find the step just below currentValue
                         for (int i = steps.size() - 1; i >= 0; i--) {
                             final Step step = steps.get(i);
                             if ((currentValue - min) > step.value) {
+                                isFirst=false;
                                 settings.paintBar.setColor(step.colorAfter);
-                                canvas.drawRect(step.xStart + paddingLeft, barY, indicatorCenterX, barY + settings.barHeight, settings.paintBar);
+                                Step sonraki=findStepOfCustor();
+                                Step onceki=findStepBeforeCustor();
+                                if(onceki==null && sonraki!=null)//orta
+                                {
+
+                                    canvas.drawRect(step.xStart + paddingLeft, barY, sonraki.xStart+ paddingLeft, barY + settings.barHeight, settings.paintBar);
+                                }
+                                else if(onceki!=null && sonraki==null)
+                                {
+                                    canvas.drawCircle(barWidth+paddingLeft, barCenterY, radiusCorner, settings.paintBar);
+                                    canvas.drawRect(step.xStart + paddingLeft, barY, barWidth+paddingLeft, barY + settings.barHeight, settings.paintBar);
+                                }
+                                else if(onceki!=null && sonraki!=null)
+                                {
+                                    canvas.drawRect(step.xStart + paddingLeft, barY, sonraki.xStart+ paddingLeft, barY + settings.barHeight, settings.paintBar);
+                                }
                                 break;
                             }
                         }
+                        if(isFirst)
+                        {
+                            Paint paint=new Paint();
+                            paint.setStyle(Paint.Style.FILL);
+                            paint.setColor(Color.parseColor("#1969c5"));
+                            Step sonraki=findStepOfCustor();
+                            canvas.drawCircle(paddingLeft, barCenterY, radiusCorner, paint);
+                            canvas.drawRect( paddingLeft, barY, sonraki.xStart+paddingLeft, barY + settings.barHeight, paint);
+                        }
+
+
                     }
+
+
                 }
             }
 
@@ -769,13 +823,28 @@ public class Slidr extends FrameLayout {
                         }
                         drawIndicatorsTextAbove(canvas, formatRegionValue(1, rightValue), settings.paintTextTop, textX, textY, Layout.Alignment.ALIGN_CENTER);
                     } else {
-                        drawIndicatorsTextAbove(canvas, formatValue(min), settings.paintTextTop, 0 + paddingLeft, textY, Layout.Alignment.ALIGN_CENTER);
+                        //drawIndicatorsTextAbove(canvas, formatValue(min), settings.paintTextTop, 0 + paddingLeft, textY, Layout.Alignment.ALIGN_CENTER);
                         for (Step step : steps) {
-                            drawIndicatorsTextAbove(canvas, formatValue(step.value), settings.paintTextTop, step.xStart + paddingLeft, textY, Layout.Alignment.ALIGN_CENTER);
+                            //drawIndicatorsTextAbove(canvas, formatValue(step.value), settings.paintTextTop, step.xStart + paddingLeft, textY, Layout.Alignment.ALIGN_CENTER);
                         }
-                        drawIndicatorsTextAbove(canvas, formatValue(max), settings.paintTextTop, canvas.getWidth(), textY, Layout.Alignment.ALIGN_CENTER);
+                        for (PointText pointText : pointTexts) {//SCPOİNTTEXT
+                            if(pointText.name!="")
+                            {
+                                drawIndicatorsTextAbove(canvas, pointText.name, settings.paintTextTop, pointText.xStart + paddingLeft, textY, Layout.Alignment.ALIGN_CENTER);
+                            }
+                            else
+                            {
+                                drawIndicatorsTextAbove(canvas, formatValue(pointText.value), settings.paintTextTop, pointText.xStart + paddingLeft, textY, Layout.Alignment.ALIGN_CENTER);
+                            }
+
+                        }
+                        //drawIndicatorsTextAbove(canvas, formatValue(max), settings.paintTextTop, canvas.getWidth(), textY, Layout.Alignment.ALIGN_CENTER);
                     }
                 }
+            }
+            //sc add point text
+            {
+
             }
 
 
@@ -803,13 +872,36 @@ public class Slidr extends FrameLayout {
                     }
                 }
             }
+            //draw ball text
+            {
+
+            }
 
             //indicator
             {
                 final int color = settings.paintIndicator.getColor();
-                canvas.drawCircle(indicatorCenterX, this.barCenterY, indicatorRadius, settings.paintIndicator);
-                settings.paintIndicator.setColor(Color.WHITE);
-                canvas.drawCircle(indicatorCenterX, this.barCenterY, indicatorRadius * 0.85f, settings.paintIndicator);
+                //canvas.drawCircle(indicatorCenterX, this.barCenterY, indicatorRadius, settings.paintIndicator);
+
+                //settings.paintIndicator.setShader(new LinearGradient(0, 0, 0, getHeight(), Color.WHITE, Color.BLUE, Shader.TileMode.MIRROR));
+                //settings.paintIndicator.setShader(new RadialGradient(0,0,getHeight(),Color.WHITE,Color.BLUE,Shader.TileMode.CLAMP));
+                settings.paintIndicator.setColor(Color.parseColor("#364e8c"));
+                canvas.drawCircle(indicatorCenterX, this.barCenterY, indicatorRadius*1.1f /** 0.85f*/, settings.paintIndicator);
+                final String bubbleText = formatValue(getCurrentValue());
+                if(getCurrentValue()==100)
+                {
+                    drawText(canvas, bubbleText, indicatorX+((indicatorCenterX-indicatorX)/3), this.barY, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_CENTER);
+                }
+                else if(getCurrentValue()>=0 && getCurrentValue()<10)
+                {
+                    //drawText(canvas, "    "+bubbleText, indicatorX, this.barY, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_CENTER);
+                    drawText(canvas, bubbleText, indicatorX+((indicatorCenterX-indicatorX)*3/4), this.barY, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_CENTER);
+                }
+                else
+                {
+                    //drawText(canvas, "   "+bubbleText, indicatorX, this.barY, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_CENTER);
+                    drawText(canvas, bubbleText, indicatorX+((indicatorCenterX-indicatorX)/2), this.barY, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_CENTER);
+                }
+
                 settings.paintIndicator.setColor(color);
             }
 
@@ -967,7 +1059,7 @@ public class Slidr extends FrameLayout {
         path.quadTo(rect.left, rect.top, rect.left + roundRectHeight, rect.top);
         path.close();
 
-        canvas.drawPath(path, settings.paintBubble);
+        //canvas.drawPath(path, settings.paintBubble);
     }
 
     private void drawBubble(Canvas canvas, float centerX, float triangleCenterX, float y) {
@@ -998,7 +1090,8 @@ public class Slidr extends FrameLayout {
 
             if (!isEditing) {
                 final String bubbleText = formatValue(getCurrentValue());
-                drawText(canvas, bubbleText, dpToPx(BUBBLE_PADDING_HORIZONTAL), dpToPx(BUBBLE_PADDING_VERTICAL) - 3, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_NORMAL);
+                //drawText(canvas, bubbleText, dpToPx(BUBBLE_PADDING_HORIZONTAL), dpToPx(BUBBLE_PADDING_VERTICAL) - 3, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_NORMAL);
+                //drawText(canvas, bubbleText, dpToPx(BUBBLE_PADDING_HORIZONTAL), this.barY, settings.paintBubbleTextCurrent, Layout.Alignment.ALIGN_CENTER);
             }
         }
 
@@ -1041,22 +1134,52 @@ public class Slidr extends FrameLayout {
         private float value;
 
         private float xStart;
-        private int colorBefore;
-        private int colorAfter = Color.parseColor("#000000");//Color.parseColor("#ed5564");
+        //private int colorBefore;
+        private int colorAfter = Color.parseColor("#ed5564");
 
-        public Step(String name, float value, int colorBefore) {
+        public Step(String name, float value, int colorAfter) {
             this.name = name;
             this.value = value;
-            this.colorBefore = colorBefore;
-        }
-
-        public Step(String name, float value, int colorBefore, int colorAfter) {
-            this(name, value, colorBefore);
             this.colorAfter = colorAfter;
         }
 
+        /*public Step(String name, float value, int colorBefore, int colorAfter) {
+            this(name, value, colorBefore);
+            this.colorAfter = colorAfter;
+        }*/
+
         @Override
         public int compareTo(@NonNull Step o) {
+            return Float.compare(value, o.value);
+        }
+
+        public void setColorBefore(int colorBefore) {
+            //this.colorBefore = colorBefore;
+        }
+        public void setColorAfter(int colorAfter)
+        {
+            this.colorAfter=colorAfter;
+        }
+    }
+
+    public static class PointText implements Comparable<PointText> {
+        private String name;
+        private float value;
+
+        private float xStart;
+
+
+        public PointText(String name, float value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public PointText(String name, float value, int colorBefore) {
+            this(name, value);
+        }
+
+        @Override
+        public int compareTo(@NonNull PointText o) {
             return Float.compare(value, o.value);
         }
     }
@@ -1070,13 +1193,13 @@ public class Slidr extends FrameLayout {
         private TextPaint paintTextBottom;
         private TextPaint paintBubbleTextCurrent;
         private Paint paintBubble;
-        private int colorBackground = Color.parseColor("#d7e3ef");//Color.parseColor("#cccccc");
-        private int colorStoppover = Color.parseColor("#1969c5");//Color.BLACK;
+        private int colorBackground = Color.parseColor("#d7e3ef");
+        private int colorStoppover = Color.parseColor("#c8c9cd");
         private int textColor = Color.parseColor("#6E6E6E");
         private int textTopSize = 12;
         private int textBottomSize = 12;
         private int textSizeBubbleCurrent = 16;
-        private float barHeight = 15;
+        private float barHeight = 20;
         private float paddingCorners;
         private boolean step_colorizeAfterLast = false;
         private boolean step_drawLines = true;
@@ -1088,8 +1211,8 @@ public class Slidr extends FrameLayout {
         private boolean indicatorInside = false;
         private boolean regions_textFollowRegionColor = false;
         private boolean regions_centerText = true;
-        private int regionColorLeft = Color.parseColor("#000000");//Color.parseColor("#007E90");
-        private int regionColorRight = Color.parseColor("#000000");//Color.parseColor("#ed5564");
+        private int regionColorLeft = Color.parseColor("#007E90");
+        private int regionColorRight = Color.parseColor("#ed5564");
         private boolean editOnBubbleClick = true;
         private int bubbleColorEditing = Color.WHITE;
 
@@ -1181,7 +1304,6 @@ public class Slidr extends FrameLayout {
         }
 
         public void setDrawBubble(boolean drawBubble) {
-            this.drawBubble = drawBubble;
             this.drawBubble = drawBubble;
             slidr.update();
         }
@@ -1296,7 +1418,7 @@ public class Slidr extends FrameLayout {
 
         @Override
         public String format(float value) {
-            return String.format("%d €", (int) value);
+            return String.format("%d", (int) value);
         }
     }
 }

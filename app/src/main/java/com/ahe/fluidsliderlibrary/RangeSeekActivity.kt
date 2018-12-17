@@ -17,28 +17,22 @@ class RangeSeekActivity : AppCompatActivity() {
 
         val slidr = findViewById<Slidr>(R.id.slidr)
 
-        //slidr.max = 500f
-        slidr.addStep(Slidr.Step("test", 100f, Color.parseColor("#d7e3ef"), Color.parseColor("#1969c5")))
-        slidr.addStep(Slidr.Step("test2", 300f, Color.parseColor("#d7e3ef"), Color.parseColor("#1969c5")))
-        slidr.addStep(Slidr.Step("test3", 600f, Color.parseColor("#d7e3ef"), Color.parseColor("#1969c5")))
-        slidr.addStep(Slidr.Step("test4", 900f, Color.parseColor("#d7e3ef"), Color.parseColor("#1969c5")))
-        //slidr.setti
+        slidr.max = 100f
+        slidr.setTextMax("")
+        //slidr.setBackgroundColor(ContextCompat.getColor(this,R.color.slider_bg))
 
-        //slidr.addStep(Slidr.Step("test", 200f, Color.parseColor("#007E90"), Color.BLUE))
-        //slidr.addStep(Slidr.Step("test", 300f, Color.parseColor("#007E90"), Color.YELLOW))
-        //slidr.addStep(Slidr.Step("test", 400f, Color.parseColor("#007E90"), Color.GREEN))
 
-        //slidr.setTextMax("max\nvalue")
-        //slidr.currentValue = 300f
-        //slidr.currentValue = 0f
-        /*slidr.setListener(object : Slidr.Listener {
-            override fun valueChanged(slidr: Slidr, currentValue: Float) {
+        slidr.addStep(Slidr.Step("", 35f,ContextCompat.getColor(this,R.color.slider_fg)))
+        slidr.addStep(Slidr.Step("", 50f,ContextCompat.getColor(this,R.color.slider_fg)))
+        slidr.addStep(Slidr.Step("", 70f,ContextCompat.getColor(this,R.color.slider_fg)))
 
-            }
 
-            fun bubbleClicked(slidr: Slidr) {
+        slidr.addPointText(Slidr.PointText("", 20f))
+        slidr.addPointText(Slidr.PointText("", 30f))
+        slidr.addPointText(Slidr.PointText("", 40f))
+        slidr.addPointText(Slidr.PointText("", 50f))
+        slidr.addPointText(Slidr.PointText("", 70f))
+        slidr.addPointText(Slidr.PointText(">70", 85f))
 
-            }
-        })*/
     }
 }

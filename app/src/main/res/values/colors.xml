@@ -10,6 +10,7 @@
     <color name="slider_bg">#d7e3ef</color>
     <color name="slider_fg">#1969c5</color>
     <color name="divider_bg">#c8c9cd</color>
+    <color name="indicatorInside">#364e8c</color>
 
 
     <color name="test">#02687a</color>
